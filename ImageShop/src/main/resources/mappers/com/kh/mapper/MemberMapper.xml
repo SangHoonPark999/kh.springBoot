@@ -2,6 +2,33 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kh.mapper.MemberMapper">
 
+	<!-- 사용자 정의 resultMap 요소 정의 -->
+	<resultMap type="Member" id="memberMap">
+		<result property="userNo" column="user_no" />
+		<result property="userId" column="user_id" />
+		<result property="userPw" column="user_pw" />
+		<result property="userName" column="user_name" />
+		<result property="job" column="job" />
+		<result property="coin" column="coin" />
+		<result property="enabled" column="enabled" />
+		<result property="regDate" column="reg_date" />
+		<result property="updDate" column="upd_date" />
+		<collection property="authList" resultMap="authMap">
+		</collection>
+	</resultMap>
+
+	<resultMap type="MemberAuth" id="authMap">
+		<result property="userNo" column="user_no" />
+		<result property="auth" column="auth" />
+	</resultMap>
+
+	<!-- 사용자 아이디로 회원 정보 조회 -->
+	<select id="readByUserId" resultMap="memberMap">
+		SELECT mem.user_no, mem.user_id, user_pw, user_name, job, coin, enabled, reg_date, upd_date, auth
+		FROM member mem LEFT OUTER JOIN member_auth auth ON mem.user_no	= auth.user_no
+		WHERE mem.user_id = #{userId}
+	</select>
+
 	<!-- 회원등록 -->
 	<insert id="create">
 		INSERT INTO member(
@@ -11,7 +38,7 @@
 		)
 	</insert>
 
-	<!-- 멤버권한 생성 -->
+	<!-- 회원권한 생성 -->
 	<insert id="createAuth">
 		INSERT INTO member_auth (
 		user_no, auth
@@ -19,5 +46,63 @@
 		member_seq.CURRVAL,#{auth}
 		)
 	</insert>
+
+	<!-- 회원 목록 -->
+	<select id="list" resultType="Member">
+		SELECT
+		user_no,user_id,user_pw,user_name,
+		(SELECT code_name FROM code_detail
+		WHERE group_code =
+		'a00' AND code_value = job) AS job,
+		coin,reg_date
+		FROM member
+		ORDER BY reg_date DESC
+	</select>
+
+	<!-- 회원상세 정보 -->
+	<select id="read" resultMap="memberMap">
+		SELECT mem.user_no, mem.user_id,
+		user_pw,user_name, job,coin, reg_date, upd_date, auth
+		FROM member mem
+		LEFT OUTER JOIN member_auth auth ON mem.user_no
+		= auth.user_no
+		WHERE
+		mem.user_no = #{userNo}
+	</select>
+
+	<!-- 회원권한 수정 -->
+	<insert id="modifyAuth">
+		INSERT INTO member_auth (
+		user_no, auth
+		)VALUES(
+		#{userNo},#{auth}
+		)
+	</insert>
+
+	<!-- 회원정보 수정 -->
+	<update id="update">
+		UPDATE member
+		SET user_name = #{userName},
+		job = #{job}
+		WHERE user_no = #{userNo}
+	</update>
+
+	<!-- 회원정보 삭제 -->
+	<delete id="delete">
+		DELETE FROM member
+		WHERE user_no = #{userNo}
+	</delete>
+
+	<!-- 회원권한 삭제 -->
+	<delete id="deleteAuth">
+		DELETE FROM member_auth
+		WHERE user_no = #{userNo}
+	</delete>
+
+	<!-- 회원 테이블의 데이터 건수 조회 -->
+	<select id="countAll" resultType="int">
+		SELECT count(*)
+		FROM member
+	</select>
 
 </mapper>

@@ -1,11 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>접근 불가</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
 	<jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -13,11 +16,11 @@
 	<div align="center">
 		<div>
 			<h2>
-				<spring:message code="common.joinMemberSuccess"
-					arguments="${userName}" />
+				<spring:message code="user.auth.noadmin" />
 			</h2>
-			<a href="/auth/login"><spring:message code="action.login" /></a>
+			<a href="/"><spring:message code="action.home" /></a>
 		</div>
+
 	</div>
 	<jsp:include page="/WEB-INF/views/common/footer.jsp" />
 </body>
